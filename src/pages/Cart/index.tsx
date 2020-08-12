@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import { View } from 'react-native';
@@ -38,31 +38,46 @@ interface Product {
 const Cart: React.FC = () => {
   const { increment, decrement, products } = useCart();
 
+  const [entities, setEntities] = useState<Product[]>([]);
+
+  useEffect(() => {
+    setEntities(products);
+  }, [products]);
+
   function handleIncrement(id: string): void {
-    // TODO
+    increment(id);
   }
 
   function handleDecrement(id: string): void {
-    // TODO
+    decrement(id);
   }
 
   const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
+    const totalPerProduct: number[] = [];
 
-    return formatValue(0);
+    // eslint-disable-next-line array-callback-return
+    products.map(item => {
+      const value = item.price * item.quantity;
+      totalPerProduct.push(value);
+    });
+
+    const totalPrice = totalPerProduct.reduce((accum, curr) => accum + curr, 0);
+    return formatValue(totalPrice);
   }, [products]);
 
   const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
+    const quantities = products.map(item => item.quantity);
 
-    return 0;
+    const totalItems = quantities.reduce((accum, curr) => accum + curr, 0);
+
+    return totalItems;
   }, [products]);
 
   return (
     <Container>
       <ProductContainer>
         <ProductList
-          data={products}
+          data={entities}
           keyExtractor={item => item.id}
           ListFooterComponent={<View />}
           ListFooterComponentStyle={{
